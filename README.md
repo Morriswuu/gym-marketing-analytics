@@ -187,5 +187,3 @@ Morris Wu
 Data Analytics / Business Intelligence Project
 
 ---
-
-如果你要，我可以幫你再升級一版「更像求職作品集」版本（例如加 KPI 成效數字、商業影響、故事線），會更有說服力。
