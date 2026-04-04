@@ -1,1 +1,39 @@
+function importFromBigQuery() {
+  var projectId = 'gym-project-491908';
+  
+  var job = {
+    configuration: {
+      query: {
+        query: 'SELECT * FROM `gym-project-491908.gymmember.weekly_summary`',
+        useLegacySql: false
+      }
+    }
+  };
 
+  var jobResult = BigQuery.Jobs.insert(job, projectId);
+  var jobId = jobResult.jobReference.jobId;
+  
+  // 等待查詢完成
+  var sleepTimeMs = 500;
+  while (jobResult.status.state !== 'DONE') {
+    Utilities.sleep(sleepTimeMs);
+    jobResult = BigQuery.Jobs.get(projectId, jobId);
+  }
+
+  var results = BigQuery.Jobs.getQueryResults(projectId, jobId);
+  var rows = results.rows;
+  var fields = results.schema.fields;
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('工作表1');
+  sheet.clearContents();
+
+  var headers = fields.map(function(f) { return f.name; });
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+
+  var data = rows.map(function(row) {
+    return row.f.map(function(cell) { return cell.v; });
+  });
+  sheet.getRange(2, 1, data.length, headers.length).setValues(data);
+  
+  Logger.log('完成，共寫入 ' + data.length + ' 筆資料');
+}
